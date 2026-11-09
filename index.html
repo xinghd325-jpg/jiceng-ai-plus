@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta name="robots" content="noindex, nofollow, noarchive">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>基层治理 AI+ · 原型入口</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: linear-gradient(180deg, #0B4BD6 0%, #165DFF 26%, #f0f2f5 26%);
+      color: rgba(0,0,0,0.88);
+    }
+    .wrap { max-width: 920px; margin: 0 auto; padding: 40px 20px 72px; }
+    .brand { color: #fff; margin-bottom: 28px; }
+    .brand .kicker { font-size: 12px; opacity: 0.8; letter-spacing: 1px; }
+    .brand h1 { font-size: 24px; font-weight: 700; margin-top: 8px; letter-spacing: 0.4px; }
+    .brand p { margin-top: 8px; font-size: 13px; opacity: 0.9; line-height: 1.7; max-width: 640px; }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .mod {
+      background: #fff;
+      border: 1px solid #e5eaf0;
+      border-radius: 12px;
+      padding: 20px 20px 18px;
+      box-shadow: 0 8px 24px rgba(15, 40, 80, 0.08);
+      display: flex;
+      flex-direction: column;
+      min-height: 188px;
+    }
+    .mod-name {
+      font-size: 12px;
+      color: #165DFF;
+      background: #e8f3ff;
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-bottom: 10px;
+      width: fit-content;
+      font-weight: 600;
+    }
+    .mod h2 { font-size: 18px; margin-bottom: 8px; }
+    .mod .desc { font-size: 13px; color: rgba(0,0,0,0.55); line-height: 1.7; flex: 1; }
+    .links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+    .links a {
+      display: inline-block;
+      text-decoration: none;
+      background: #165DFF;
+      color: #fff;
+      height: 34px;
+      line-height: 34px;
+      padding: 0 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .links a:hover { background: #0E42D2; }
+    .foot {
+      margin-top: 28px;
+      font-size: 12px;
+      color: #86909C;
+      text-align: center;
+    }
+    @media (max-width: 720px) {
+      .grid { grid-template-columns: 1fr; }
+      .brand h1 { font-size: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="brand">
+      <div class="kicker">金华 · 基层治理 AI+</div>
+      <h1>原型入口</h1>
+      <p>四个可交互原型：事件上报、事件处置、智能研判、矛盾纠纷调解。点击卡片进入对应演示。</p>
+    </div>
+
+    <div class="grid">
+      <div class="mod">
+        <span class="mod-name">移动端</span>
+        <h2>智报 · 事件上报</h2>
+        <p class="desc">网格员用口语一句话完成上报。AI 自动归类事件类型、事项名称、紧急程度等字段，对照现有「掌上基层」填报流程。</p>
+        <div class="links">
+          <a href="zhibao/">打开智报</a>
+        </div>
+      </div>
+
+      <div class="mod">
+        <span class="mod-name">PC 端</span>
+        <h2>智办 · 事件处置</h2>
+        <p class="desc">事件处置台：查看详情、AI 辅助研判与派发、标签校正、办理闭环。对接基层智治事件处置工作流。</p>
+        <div class="links">
+          <a href="zhiban/">打开智办</a>
+        </div>
+      </div>
+
+      <div class="mod">
+        <span class="mod-name">PC 端</span>
+        <h2>智研 · 智能研判</h2>
+        <p class="desc">e拨就灵智能研判：群体类型分析、全量事件、高频事件、AI 助手、处置评价、AI 预警。</p>
+        <div class="links">
+          <a href="zhiyan/">打开智研</a>
+        </div>
+      </div>
+
+      <div class="mod">
+        <span class="mod-name">演示文稿</span>
+        <h2>矛盾纠纷智能调解</h2>
+        <p class="desc">调解助手方案演示：场景痛点、能力路径、现场演示视频，面向派出所 / 综治中心矛盾纠纷化解。</p>
+        <div class="links">
+          <a href="tiaojie/">打开调解助手</a>
+        </div>
+      </div>
+    </div>
+
+    <p class="foot">仅供内部演示 · 请勿公开传播</p>
+  </div>
+</body>
+</html>

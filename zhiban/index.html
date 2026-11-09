@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta name="robots" content="noindex, nofollow, noarchive">
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>智办 · 事件处置</title>
+<style>
+:root{
+  --primary:#165DFF;--primary-dark:#0E42D2;--primary-soft:#E8F3FF;
+  --bg:#fff;--bg2:#F2F3F5;--tx:#1D2129;--tx2:#4E5969;--tx3:#86909C;--bd:#E5E6EB;
+  --success:#00B42A;--danger:#F53F3F;--ai:#6C5CE7;--radius:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;font-size:14px;color:var(--tx);background:var(--bg2);height:100vh;overflow:hidden}
+.topnav{height:48px;background:linear-gradient(90deg,#0B4BD6,#165DFF 50%,#2B7AF0);display:flex;align-items:center;padding:0 18px;color:#fff;position:relative;z-index:30}
+.topnav .logo{font-weight:600;font-size:15px;display:flex;align-items:center;gap:10px}
+.topnav .logo .sep{width:1px;height:14px;background:rgba(255,255,255,.35)}
+.topnav .logo .sub{font-weight:400;font-size:13px;opacity:.9}
+.ai-pill{background:linear-gradient(90deg,#7C5CFF,#3478F6);font-size:11px;padding:2px 8px;border-radius:8px;font-weight:700}
+.topnav .right{margin-left:auto;font-size:13px;opacity:.92}
+.list{padding:16px 20px;height:calc(100vh - 48px);overflow:auto}
+.crumb{font-size:12px;color:var(--tx3);margin-bottom:10px}
+.card{background:#fff;border:1px solid var(--bd);border-radius:8px;overflow:hidden}
+.card h3{padding:12px 16px;font-size:15px;border-bottom:1px solid var(--bd)}
+table{width:100%;border-collapse:collapse}
+th{padding:10px 14px;font-size:12px;color:var(--tx3);text-align:left;background:#FAFBFC;border-bottom:1px solid var(--bd);font-weight:500}
+td{padding:12px 14px;font-size:13px;border-bottom:1px solid #F2F3F5}
+tr{cursor:pointer}
+tr:hover td{background:#F7F8FA}
+tr.on td{background:#E8F3FF}
+.tag{display:inline-flex;padding:1px 8px;border-radius:4px;font-size:12px;background:#FFF7E8;color:#FF7D00}
+.overlay{position:fixed;top:48px;left:0;right:0;bottom:0;background:rgba(0,0,0,.45);z-index:20}
+.drawer{position:fixed;top:48px;right:0;bottom:0;width:66.666%;background:#fff;z-index:21;display:flex;flex-direction:column;box-shadow:-8px 0 28px rgba(0,0,0,.2)}
+.head{height:52px;border-bottom:1px solid var(--bd);display:flex;align-items:center;padding:0 16px;gap:10px;flex-shrink:0}
+.head .eid{font-size:16px;font-weight:600}
+.head .star{color:#C9CDD4;cursor:pointer;font-size:18px}
+.head .star.on{color:#FAAD14}
+.status{background:#FFF1E8;color:#FF7D29;padding:4px 12px;border-radius:20px;font-size:13px}
+.head .acts{margin-left:auto;display:flex;gap:8px}
+.action-btn{height:32px;border:1px solid var(--bd);background:#fff;border-radius:4px;padding:0 12px;font-size:13px;cursor:pointer;font-family:inherit}
+.action-btn:hover{background:#F7F8FA}
+.action-btn.primary{background:var(--primary);color:#fff;border-color:var(--primary)}
+.action-btn.danger{border-color:#FFECEC;background:#FFF1F0;color:#F53F3F}
+.body{flex:1;min-height:0;display:flex}
+.col{min-width:0;overflow:auto}
+.col-l{flex:0 0 50%;border-right:1px solid var(--bd)}
+.col-r{flex:1}
+.tabs{display:flex;border-bottom:1px solid var(--bd);padding:0 8px;background:#fff;position:sticky;top:0;z-index:3}
+.tab{padding:10px 14px;font-size:13px;color:#666;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap}
+.tab.on{color:var(--primary);font-weight:500;border-bottom-color:var(--primary)}
+.tab.ai{color:var(--ai)}
+.tab.ai.on{border-bottom-color:var(--ai)}
+.pane{display:none;padding:16px}
+.pane.on{display:block}
+.sec{display:inline-block;padding:4px 12px;background:var(--primary-soft);color:var(--primary);font-size:13px;border-radius:4px;margin:4px 0 12px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 20px}
+.field{display:flex;gap:8px;font-size:14px;line-height:22px}
+.field.full{grid-column:1/-1}
+.field .k{color:#666;white-space:nowrap}
+.field .v{color:#333}
+.field .v.dim{color:#999}
+.old{text-decoration:line-through;color:#999;margin-right:6px}
+.new{color:var(--ai);font-weight:600}
+.content{font-size:14px;line-height:1.7;color:#333;margin-top:6px}
+.map{margin-top:16px;height:200px;border:1px solid var(--bd);border-radius:4px;background:linear-gradient(#d7e8c8 0 38%,#cfe3f5 38% 100%);position:relative;overflow:hidden}
+.map .road{position:absolute;background:#f4d27a;height:8px;left:0;right:0;top:42%;transform:rotate(-8deg)}
+.map .pin{position:absolute;left:54%;top:48%;transform:translate(-50%,-100%);text-align:center}
+.map .pin i{display:block;width:16px;height:16px;background:#E74C3C;border-radius:50% 50% 50% 0;transform:rotate(-45deg);margin:0 auto}
+.map .pin span{font-size:12px;background:#fff;padding:2px 8px;border-radius:4px;box-shadow:0 1px 4px rgba(0,0,0,.15);display:inline-block;margin-top:4px}
+.ai-inline{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:4px;font-size:12px;color:var(--ai)}
+.ai-inline b{color:var(--ai);font-size:13px;font-weight:650}
+.btn{height:26px;padding:0 10px;border-radius:4px;border:1px solid var(--bd);background:#fff;cursor:pointer;font-family:inherit;font-size:12px}
+.btn-ai{background:linear-gradient(90deg,#6C5CE7,#3478F6);color:#fff;border:0}
+.btn-ghost{color:var(--ai);border-color:#E4DCFF}
+.tags{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.chip{display:inline-flex;align-items:center;gap:4px;background:#F4F1FF;color:#5b4db3;border-radius:999px;padding:3px 8px;font-size:12px}
+.chip.man{background:#E8F3FF;color:#165DFF}
+.chip.pending{background:#fff;border:1px dashed #C4B5FD}
+.chip i{font-style:normal;font-size:10px;background:var(--ai);color:#fff;border-radius:3px;padding:0 3px;line-height:14px}
+.chip b{font-weight:500;cursor:pointer;color:#999}
+.chip b:hover{color:#F53F3F}
+.tag-add{display:flex;gap:6px;margin-top:8px}
+.tag-add input{height:28px;border:1px solid var(--bd);border-radius:4px;padding:0 8px;width:140px;font-size:12px;font-family:inherit}
+.subtabs{display:flex;gap:0;border-bottom:1px solid var(--bd);margin:0 0 12px}
+.stab{padding:8px 12px;font-size:13px;color:#666;cursor:pointer;border-bottom:2px solid transparent}
+.stab.on{color:var(--ai);font-weight:500;border-bottom-color:var(--ai)}
+.spane{display:none}
+.spane.on{display:block}
+.law{border:1px solid var(--bd);border-radius:8px;padding:10px;margin-bottom:8px}
+.law .t{font-weight:600;font-size:13px}
+.law .m{font-size:12px;color:#86909C;margin:4px 0}
+.law .p{font-size:13px;line-height:1.6;color:#4E5969}
+.track{background:#22C55E;border-radius:40px;padding:12px 16px;margin:10px 12px}
+.nodes{display:flex;justify-content:space-between;position:relative}
+.nodes::before{content:"";position:absolute;left:12%;right:12%;top:11px;height:2px;background:rgba(255,255,255,.45)}
+.node{flex:1;text-align:center;color:#fff;position:relative;z-index:1}
+.node .c{width:22px;height:22px;border:2px solid #fff;border-radius:50%;margin:0 auto 4px;display:flex;align-items:center;justify-content:center;font-size:12px}
+.node.on .c{background:#FF7A1A}
+.node .l{font-size:13px;font-weight:600}
+.node .t{font-size:11px;opacity:.95}
+.dur{text-align:center;padding:8px;font-size:14px}
+.dur b{color:#22C55E}
+.tl{padding:8px 16px 20px}
+.ti{position:relative;padding:0 0 16px 18px}
+.ti::before{content:"";position:absolute;left:3px;top:10px;bottom:0;width:1px;background:#E5E6EB}
+.ti:last-child::before{display:none}
+.ti .dot{position:absolute;left:0;top:6px;width:8px;height:8px;border-radius:50%;background:var(--primary)}
+.ti .unit{color:var(--primary);font-size:13px;font-weight:500}
+.ti .dept{font-weight:500;margin:2px 0 6px}
+.spent{display:inline-flex;font-size:11px;color:#22C55A;background:#F0FFF4;border:1px solid #B7EB8F;padding:0 8px;height:20px;align-items:center;border-radius:10px;margin-left:6px}
+.box{background:#F7F8FA;border:1px solid #EEF0F3;border-radius:6px;padding:8px 10px;font-size:13px;line-height:1.55}
+.zb{padding:12px 14px 20px}
+.block{border:1px solid var(--bd);border-radius:10px;margin-bottom:12px;overflow:hidden}
+.block h4{padding:10px 12px;background:#FAFBFC;border-bottom:1px solid var(--bd);font-size:13px}
+.block .in{padding:12px}
+.case,.rel{border:1px solid var(--bd);border-radius:8px;padding:10px;margin-bottom:8px}
+.case .t,.rel .t{font-weight:600;font-size:13px;margin-bottom:4px}
+.case .m,.rel .m{font-size:12px;color:#86909C;margin-bottom:4px}
+.case .p{font-size:12px;background:#F7F8FA;padding:6px 8px;border-radius:4px;line-height:1.55}
+.sug{display:flex;gap:8px;margin-bottom:8px;font-size:13px;line-height:1.6}
+.sug .n{width:20px;height:20px;border-radius:50%;background:var(--primary);color:#fff;font-size:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.dept{display:flex;align-items:center;justify-content:space-between;border:1px solid var(--bd);border-radius:8px;padding:8px 10px;margin-bottom:6px}
+.dept .role{font-size:11px;color:var(--primary);background:var(--primary-soft);padding:1px 6px;border-radius:4px}
+.mask{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:40;display:none;align-items:flex-start;justify-content:flex-end}
+.mask.show{display:flex}
+.slide{width:480px;height:100%;background:#fff;display:flex;flex-direction:column}
+.slide .hd{height:48px;border-bottom:1px solid var(--bd);display:flex;align-items:center;padding:0 16px;font-weight:600;justify-content:space-between}
+.slide .bd{flex:1;overflow:auto;padding:16px}
+.fg{margin-bottom:14px}
+.fg label{display:block;font-size:13px;margin-bottom:6px}
+.fg label .req{color:#F53F3F;margin-right:3px}
+.fg input,.fg textarea{width:100%;border:1px solid var(--bd);border-radius:4px;padding:8px 10px;font-family:inherit;font-size:13px}
+.org{border:1px solid #94BFFF;border-radius:8px;padding:6px;margin-top:6px;display:none;grid-template-columns:1fr 1fr;gap:4px}
+.org.show{display:grid}
+.org button{text-align:left;border:0;background:#fff;padding:8px 10px;border-radius:4px;cursor:pointer;font-family:inherit}
+.org button:hover,.org button.on{background:var(--primary-soft);color:var(--primary)}
+.hint{margin-top:6px;font-size:12px;color:var(--ai);line-height:1.5}
+.hint a{color:var(--ai);cursor:pointer;text-decoration:underline}
+.toast{position:fixed;top:64px;left:50%;transform:translateX(-50%);background:#1D2129;color:#fff;padding:8px 16px;border-radius:6px;font-size:13px;display:none;z-index:80}
+.toast.show{display:block}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:50;display:none;align-items:center;justify-content:center}
+.modal.show{display:flex}
+.modal .mbox{width:480px;background:#fff;border-radius:8px;overflow:hidden}
+.g-item{padding:10px;border-bottom:1px solid #f3f3f3;cursor:pointer;font-size:13px;display:flex;justify-content:space-between}
+.g-item:hover{background:#F7F8FA}
+.g-item i{font-style:normal;color:#C9CDD4;font-size:11px}
+</style>
+</head>
+<body>
+<div class="topnav">
+  <div class="logo">基层智治综合应用 <span class="sep"></span> <span class="sub">全量事件</span> <span class="ai-pill">智办</span></div>
+  <div class="right">金东区社会治理中心 · 张敏</div>
+</div>
+
+<div class="list">
+  <div class="crumb">全量事件管理 / 待办事件</div>
+  <div class="card">
+    <h3>全量事件</h3>
+    <table>
+      <thead><tr><th>事件编号</th><th>事件名称</th><th>原分类</th><th>状态</th><th>上报时间</th></tr></thead>
+      <tbody>
+        <tr class="on" onclick="openDrawer()"><td>202609151553YDUFKKP</td><td>施工导致村民果树死亡</td><td>其他信访事件</td><td><span class="tag">区中心受理</span></td><td>2026-09-15 15:53</td></tr>
+        <tr><td>202609151102HJKL88</td><td>赤松镇工地扬尘</td><td>城乡治理</td><td><span class="tag">办理中</span></td><td>2026-09-15 11:02</td></tr>
+        <tr><td>202609140833AB12CD</td><td>曹宅镇施工占道</td><td>交通安全</td><td><span class="tag">已办结</span></td><td>2026-09-14 08:33</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="overlay" id="overlay"></div>
+<div class="drawer" id="drawer">
+  <div class="head">
+    <span class="eid">事件编号：202609151553YDUFKKP</span>
+    <span class="star" id="star">☆</span>
+    <span class="status">区中心受理</span>
+    <div class="acts">
+      <button class="action-btn" id="btnAssign">事件指派</button>
+      <button class="action-btn">事件上报</button>
+      <button class="action-btn">事件退回</button>
+      <button class="action-btn danger" id="btnClose">✕ 关闭</button>
+    </div>
+  </div>
+  <div class="body">
+    <div class="col col-l">
+      <div class="tabs" id="ltabs">
+        <div class="tab on" data-p="l0">基本信息</div>
+        <div class="tab" data-p="l1">详细信息</div>
+        <div class="tab" data-p="l2">抽检记录</div>
+      </div>
+      <div class="pane on" id="l0">
+        <div class="sec">事件类型标签一览</div>
+        <div class="field full" style="align-items:flex-start;margin-bottom:18px">
+          <span class="k">事件分类：</span>
+          <span class="v" style="flex:1">
+            <span id="vCat">矛盾纠纷调解-信访工作-其他信访事件</span>
+            <span class="ai-inline" id="aiClass">
+              AI建议 <b id="recPath">社会治安防控 · 城乡治理 · 其他生态环境事件</b>
+              <button class="btn btn-ai" id="btnConfirm">确认</button>
+              <button class="btn btn-ghost" id="btnTune">手动调整</button>
+            </span>
+          </span>
+        </div>
+        <div class="field full" style="align-items:flex-start">
+          <span class="k">事件标签：</span>
+          <span class="v" style="flex:1">
+            <div class="tags" id="tagList"></div>
+            <div class="ai-inline" id="aiTags">
+              AI建议 <span class="tags" id="aiTagChips"></span>
+              <button class="btn btn-ai" id="btnTagConfirm">确认</button>
+            </div>
+            <div class="tag-add"><input id="tagInput" placeholder="输入后添加标签" /><button class="btn" id="tagAdd">添加</button></div>
+          </span>
+        </div>
+        <div class="sec">内容</div>
+        <div class="content">陈建国 13800001234 金东区施工导致村民果树死亡的问题。市民来电反映施工导致村民果树死亡：金华市金东区赤松镇石耕背村水渠施工的时候措施未做好，将水排到了村民种果树的田里，淹水会导致果树死亡。市民诉求：部门协调给处理方案或者赔偿。望处理。</div>
+        <div class="map"><div class="road"></div><div class="pin"><i></i><span>金东区 · 赤松镇石耕背村</span></div></div>
+      </div>
+      <div class="pane" id="l1">
+        <div class="sec">事件基本信息</div>
+        <div class="grid">
+          <div class="field full"><span class="k">事件名称：</span><span class="v" id="vName">—</span></div>
+          <div class="field full"><span class="k">事件类型：</span><span class="v" id="vType">信访工作</span></div>
+          <div class="field full"><span class="k">事项名称：</span><span class="v" id="vItem">—</span></div>
+          <div class="field"><span class="k">事发时间：</span><span class="v">2026-09-15 15:53:00</span></div>
+          <div class="field"><span class="k">所属组织：</span><span class="v">光南社区第八网格</span></div>
+          <div class="field full"><span class="k">事发地点：</span><span class="v">金东区赤松镇石耕背村</span></div>
+          <div class="field"><span class="k">紧急程度：</span><span class="v">非紧急</span></div>
+          <div class="field"><span class="k">事件来源：</span><span class="v">自主上报</span></div>
+          <div class="field"><span class="k">协同应用系统：</span><span class="v dim">—</span></div>
+          <div class="field"><span class="k">重点事件：</span><span class="v">否</span></div>
+          <div class="field"><span class="k">重点场所：</span><span class="v">否</span></div>
+          <div class="field"><span class="k">事件规模：</span><span class="v">一般</span></div>
+          <div class="field"><span class="k">涉事人数：</span><span class="v">1</span></div>
+          <div class="field full"><span class="k">指挥平台定性分类：</span><span class="v" id="vQual">—</span></div>
+          <div class="field"><span class="k">触动神经事件：</span><span class="v">否</span></div>
+          <div class="field"><span class="k">是否直报：</span><span class="v">否</span></div>
+        </div>
+        <div class="sec" style="margin-top:18px">上报人信息</div>
+        <div class="grid">
+          <div class="field"><span class="k">姓名：</span><span class="v">王强</span></div>
+          <div class="field"><span class="k">联系方式：</span><span class="v">13900005678 <span style="background:#165DFF;color:#fff;font-size:11px;padding:1px 6px;border-radius:3px;margin-left:6px">复制</span></span></div>
+          <div class="field full"><span class="k">上报时间：</span><span class="v">2026-09-15 15:53:52</span></div>
+        </div>
+      </div>
+      <div class="pane" id="l2"><div style="color:#86909C;padding:40px 0;text-align:center">暂无抽检记录</div></div>
+    </div>
+    <div class="col col-r">
+      <div class="tabs" id="rtabs">
+        <div class="tab on" data-p="r0">事件追踪</div>
+        <div class="tab" data-p="r1">事件附件</div>
+        <div class="tab ai" data-p="r2">智办辅助</div>
+      </div>
+      <div class="pane on" id="r0">
+        <div class="track">
+          <div class="nodes">
+            <div class="node"><div class="c">✓</div><div class="l">上报</div><div class="t">2026-09-15<br/>15:53:52</div></div>
+            <div class="node on"><div class="c">●</div><div class="l">受理</div><div class="t">2026-09-17<br/>15:58:22</div></div>
+            <div class="node"><div class="c">○</div><div class="l">办理</div><div class="t"></div></div>
+            <div class="node"><div class="c">○</div><div class="l">结案</div><div class="t"></div></div>
+          </div>
+        </div>
+        <div class="dur">处置总用时 <b>5天1时7分44秒</b></div>
+        <div class="tl">
+          <div class="ti">
+            <div class="dot"></div>
+            <div class="unit">金东区——赤松镇</div>
+            <div class="dept">乡镇（街道）-赤松镇-综合信息指挥室 <span class="spent">用时：0秒</span></div>
+            <div class="box">2026-09-15 15:53:52 王强<br/>【上报-金东区社会治理中心】陈建国来电反映：赤松镇石耕背村水渠施工措施未做好，排水入田导致果树死亡，诉求协调处理方案或赔偿。</div>
+          </div>
+          <div class="ti">
+            <div class="dot"></div>
+            <div class="unit">金华市-金东区</div>
+            <div class="dept">金东区-党委机构-金东区社会治理中心 <span class="spent">用时：2天4分30秒</span></div>
+            <div class="box">2026-09-17 15:58:22 张敏<br/>【受理】已受理</div>
+          </div>
+        </div>
+      </div>
+      <div class="pane" id="r1"><div style="color:#86909C;padding:48px;text-align:center">暂无附件</div></div>
+      <div class="pane" id="r2">
+        <div class="zb">
+          <div class="subtabs" id="stabs">
+            <div class="stab on" data-s="s0">相似案例</div>
+            <div class="stab" data-s="s1">关联案例</div>
+            <div class="stab" data-s="s2">处置建议</div>
+            <div class="stab" data-s="s3">处置依据</div>
+          </div>
+          <div class="spane on" id="s0">
+            <div class="case">
+              <div class="t">赤松镇某村道路施工损毁农田</div>
+              <div class="m">EVT20251108021 · 2025-11-08 · 已办结 · 相似度 91%</div>
+              <div class="p">道路拓宽施工破坏灌溉渠，农田被淹。镇指挥室联合农业农村局 2 日内完成踏勘，7 日内达成补偿协议，施工单位完善排水后复工。</div>
+              <div class="p" style="margin-top:6px">可复用：现场固定损失 → 停排整改 → 评估协商 → 复工验收。</div>
+            </div>
+            <div class="case">
+              <div class="t">曹宅镇工地排水入河造成损失</div>
+              <div class="m">EVT20260314009 · 2026-03-14 · 已办结 · 相似度 84%</div>
+              <div class="p">在建工地抽排水直排河道，下游养殖受损。应急+综合执法责令停工，评估后由建设单位赔付，并纳入日常巡查。</div>
+            </div>
+            <div class="case">
+              <div class="t">岭下镇水渠清淤导致菜地受淹</div>
+              <div class="m">EVT20250822016 · 2025-08-22 · 已办结 · 相似度 79%</div>
+              <div class="p">清淤作业未设围挡导流，菜地积水。属地先行垫付青苗补偿，再向施工单位追偿。</div>
+            </div>
+          </div>
+          <div class="spane" id="s1">
+            <div class="rel">
+              <div class="t">同村在建工地扬尘扰民</div>
+              <div class="m">202609101102HJKL88 · 办理中 · 石耕背村 · 2026-09-10 上报 · 直线距离约 300 米</div>
+              <div class="p">关联原因：同一施工标段、同一建设单位。扬尘未覆盖，村民多次反映。可合并踏勘、一并约谈。</div>
+            </div>
+            <div class="rel">
+              <div class="t">同施工单位另一村排水投诉</div>
+              <div class="m">202606031445PQ78ST · 已办结 · 赤松镇周村 · 2026-06-03</div>
+              <div class="p">关联原因：同一施工单位。此前因排水被责令整改，本次属重复违规，建议加重约谈并纳入信用约束。</div>
+            </div>
+            <div class="rel">
+              <div class="t">同诉求果树赔偿协商</div>
+              <div class="m">202609021018UV34WX · 办理中 · 赤松镇 · 2026-09-02</div>
+              <div class="p">关联原因：同类赔偿诉求。可参考其评估口径，避免同镇同类事项标准不一。</div>
+            </div>
+          </div>
+          <div class="spane" id="s2">
+            <div class="sug"><div class="n">1</div><div>镇综合信息指挥室 24 小时内现场踏勘，拍照、测量受淹面积，固定果树受损情况。<button class="btn btn-ghost" style="margin-left:6px" data-adopt>采纳</button></div></div>
+            <div class="sug"><div class="n">2</div><div>责令建设单位立即停止直排，完善施工排水导流方案，防止损失扩大。<button class="btn btn-ghost" style="margin-left:6px" data-adopt>采纳</button></div></div>
+            <div class="sug"><div class="n">3</div><div>农业农村部门评估果树损失，组织村民与施工单位协商赔偿或处置方案。<button class="btn btn-ghost" style="margin-left:6px" data-adopt>采纳</button></div></div>
+            <div class="sug"><div class="n">4</div><div>同步约谈该标段扬尘问题，防止升级信访；必要时纳入矛调闭环。<button class="btn btn-ghost" style="margin-left:6px" data-adopt>采纳</button></div></div>
+            <div class="box" id="adoptBox" style="margin-top:10px">可采纳多条建议，打开事件指派时写入指派说明。</div>
+          </div>
+          <div class="spane" id="s3">
+            <div class="law">
+              <div class="t">《中华人民共和国环境保护法》第四十二条</div>
+              <div class="m">法律 · 禁止污染农田、水体</div>
+              <div class="p">排放污染物的企业事业单位应当采取有效措施，防止对周边农田、水体造成污染损害。施工废水直排果园，属于未落实污染防治责任。</div>
+            </div>
+            <div class="law">
+              <div class="t">浙江省基层治理事件处置工作规范</div>
+              <div class="m">规范 · 属地先行、部门协同</div>
+              <div class="p">涉及工程建设影响群众生产生活的，由乡镇（街道）指挥室牵头踏勘，行业主管部门协同评估，限期反馈处置方案。</div>
+            </div>
+            <div class="law">
+              <div class="t">金东区在建工地文明施工及排水管理规定</div>
+              <div class="m">区级规定 · 禁止施工废水直排农田、河道</div>
+              <div class="p">施工现场应设置沉淀、导流设施，不得擅自排放。违规造成损失的，由建设单位依法赔偿并限期整改。</div>
+            </div>
+            <div class="law">
+              <div class="t">知识库案例 EVT20251108021 处置口径</div>
+              <div class="m">沉淀案例 · 同类农田受损补偿</div>
+              <div class="p">先停排、再评估、后协议；补偿标准与属地农业部门评估意见挂钩，避免口头承诺。</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="mask" id="assignMask">
+  <div class="slide">
+    <div class="hd">事件指派
+      <span>
+        <button class="action-btn primary" id="assignSubmit">✓ 提交</button>
+        <button class="action-btn" id="assignReset">重置</button>
+        <button class="action-btn danger" id="assignClose">✕ 关闭</button>
+      </span>
+    </div>
+    <div class="bd">
+      <div class="fg"><label><span class="req">*</span>主办单位</label>
+        <input id="hostUnit" placeholder="请选择" readonly />
+        <div class="org" id="orgList"></div>
+        <div class="hint">建议指派单位：<a id="hintHost">赤松镇综合信息指挥室</a></div>
+      </div>
+      <div class="fg"><label>协办单位</label>
+        <input id="coUnits" placeholder="请选择" readonly />
+        <div class="org" id="coList"></div>
+        <div class="hint">建议协办单位：<a id="hintCo">金东区农业农村局、金东区应急管理局、金东区综合行政执法局</a></div>
+      </div>
+      <div class="fg"><label><span class="req">*</span>指派说明</label><textarea id="assignNote" rows="8">建议由属地指挥室主办，农业农村、应急、综合执法协同：现场踏勘、停止直排、评估损失并协商赔偿。</textarea></div>
+      <div class="fg"><label>附件</label><div style="height:88px;border:1px dashed var(--bd);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#C9CDD4;font-size:28px">+</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="tuneModal">
+  <div class="mbox">
+    <div style="padding:14px 16px;border-bottom:1px solid var(--bd);display:flex;justify-content:space-between;font-weight:600">手动调整事项名称 <span style="color:var(--primary);cursor:pointer;font-weight:500" id="tuneClose">完成</span></div>
+    <div style="padding:12px 16px"><input id="tuneQ" placeholder="搜索类别 / 编码" style="width:100%;height:36px;border:1px solid var(--bd);border-radius:6px;padding:0 10px" /></div>
+    <div id="tuneList" style="max-height:360px;overflow:auto;padding:0 8px 16px"></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const TAX = [
+  ["社会治安防控","城乡治理","其他生态环境事件","SJ0208022"],
+  ["矛盾纠纷调解","矛盾纠纷","经济纠纷","SJ0101007"],
+  ["矛盾纠纷调解","信访工作","其他信访事件","SJ0102006"],
+  ["应急管理指挥","安全生产","作业场所（工地）安全隐患","SJ0304006"],
+  ["社会治安防控","城乡治理","其他市容环境事件","SJ0208021"],
+  ["应急管理指挥","消防安全","电动自行车违规停放充电","SJ0301013"]
+];
+const ORGS = ["赤松镇综合信息指挥室","金东区农业农村局","金东区应急管理局","金东区综合行政执法局","区职能科室","街道指挥室","党委机构","政府机构"];
+const state = {
+  type:["社会治安防控","城乡治理","其他生态环境事件","SJ0208022"],
+  host:"赤松镇综合信息指挥室",
+  co:["金东区农业农村局","金东区应急管理局","金东区综合行政执法局"]
+};
+function $(id){return document.getElementById(id)}
+function toast(t){$("toast").textContent=t;$("toast").classList.add("show");setTimeout(()=>$("toast").classList.remove("show"),1600)}
+function bindTabs(id){
+  $(id).onclick = e => {
+    const tab = e.target.closest(".tab"); if(!tab) return;
+    $(id).querySelectorAll(".tab").forEach(x=>x.classList.remove("on"));
+    tab.classList.add("on");
+    const col = $(id).parentElement;
+    col.querySelectorAll(":scope > .pane").forEach(p=>p.classList.toggle("on", p.id===tab.dataset.p));
+  };
+}
+bindTabs("ltabs"); bindTabs("rtabs");
+$("stabs").onclick = e => {
+  const t = e.target.closest(".stab"); if(!t) return;
+  $("stabs").querySelectorAll(".stab").forEach(x=>x.classList.remove("on"));
+  t.classList.add("on");
+  $("r2").querySelectorAll(".spane").forEach(p=>p.classList.toggle("on", p.id===t.dataset.s));
+};
+const tags = [{n:"信访风险", ai:false}];
+const aiSuggest = ["施工排水","果树死亡","农田受损"];
+function renderTags(){
+  $("tagList").innerHTML = tags.map((t,i)=>`<span class="chip${t.ai?"":" man"}">${t.n}${t.ai?" <i>AI</i>":""}<b data-i="${i}">×</b></span>`).join("");
+}
+function renderAiTags(){
+  $("aiTagChips").innerHTML = aiSuggest.map((n,i)=>`<span class="chip pending">${n} <i>AI</i><b data-a="${i}">×</b></span>`).join("");
+  $("aiTags").style.display = aiSuggest.length ? "flex" : "none";
+}
+renderTags(); renderAiTags();
+$("tagList").onclick = e => {
+  const b = e.target.closest("b"); if(!b) return;
+  tags.splice(+b.dataset.i,1); renderTags(); toast("已删除标签");
+};
+$("aiTagChips").onclick = e => {
+  const b = e.target.closest("b"); if(!b) return;
+  aiSuggest.splice(+b.dataset.a,1); renderAiTags();
+};
+$("btnTagConfirm").onclick = () => {
+  aiSuggest.forEach(n => { if(!tags.some(t=>t.n===n)) tags.push({n, ai:true}); });
+  aiSuggest.length = 0; renderTags(); renderAiTags(); toast("已确认AI标签");
+};
+$("tagAdd").onclick = () => {
+  const v = $("tagInput").value.trim(); if(!v) return;
+  if(tags.some(t=>t.n===v)) { toast("标签已存在"); return; }
+  tags.push({n:v, ai:false}); $("tagInput").value=""; renderTags(); toast("已手动添加标签");
+};
+$("tagInput").onkeydown = e => { if(e.key==="Enter") $("tagAdd").click(); };
+function applyClass(){
+  const [p,c,i] = state.type;
+  $("vCat").innerHTML = `<span class="old">矛盾纠纷调解-信访工作-其他信访事件</span> → <span class="new">${p} · ${c} · ${i}</span>`;
+  $("vType").innerHTML = `<span class="old">信访工作</span> → <span class="new">${p}</span>`;
+  $("vItem").innerHTML = `<span class="new">${i}</span>`;
+  $("vQual").innerHTML = `<span class="new">${c}</span>`;
+  $("vName").innerHTML = `<span class="new">赤松镇石耕背村施工排水致果树受损</span>`;
+  $("aiClass").style.display = "none";
+}
+$("btnConfirm").onclick = () => { applyClass(); toast("已确认分类并回写字段"); };
+const adopted = [];
+document.querySelectorAll("[data-adopt]").forEach((btn, i) => {
+  btn.onclick = () => {
+    const text = btn.parentElement.childNodes[0].textContent.trim();
+    if (!adopted.includes(text)) adopted.push(text);
+    btn.textContent = "已采纳";
+    btn.disabled = true;
+    $("adoptBox").textContent = "已采纳 " + adopted.length + " 条，打开事件指派时写入指派说明。";
+    toast("已采纳第" + (i + 1) + "条建议");
+  };
+});
+$("star").onclick = () => $("star").classList.toggle("on");
+function openDrawer(){ $("overlay").style.display="block"; $("drawer").style.display="flex"; }
+function closeDrawer(){ $("overlay").style.display="none"; $("drawer").style.display="none"; }
+$("btnClose").onclick = closeDrawer;
+$("overlay").onclick = closeDrawer;
+function fillOrg(el, multi){
+  el.innerHTML = ORGS.map(o=>`<button type="button">${o}</button>`).join("");
+  el.onclick = e => {
+    const b = e.target.closest("button"); if(!b) return;
+    if(!multi){
+      el.querySelectorAll("button").forEach(x=>x.classList.remove("on"));
+      b.classList.add("on"); $("hostUnit").value = b.textContent; el.classList.remove("show");
+    } else {
+      b.classList.toggle("on");
+      $("coUnits").value = [...el.querySelectorAll("button.on")].map(x=>x.textContent).join("、");
+    }
+  };
+}
+fillOrg($("orgList"), false);
+fillOrg($("coList"), true);
+$("hostUnit").onclick = () => { $("orgList").classList.toggle("show"); $("coList").classList.remove("show"); };
+$("coUnits").onclick = () => { $("coList").classList.toggle("show"); $("orgList").classList.remove("show"); };
+$("hintHost").onclick = () => { $("hostUnit").value = state.host; $("orgList").classList.remove("show"); };
+$("hintCo").onclick = () => {
+  $("coUnits").value = state.co.join("、");
+  [...$("coList").children].forEach(b=>b.classList.toggle("on", state.co.includes(b.textContent)));
+  $("coList").classList.remove("show");
+};
+function resetAssign(){
+  $("hostUnit").value = "";
+  $("coUnits").value = "";
+  $("orgList").classList.remove("show");
+  $("coList").classList.remove("show");
+  $("orgList").querySelectorAll("button").forEach(x=>x.classList.remove("on"));
+  $("coList").querySelectorAll("button").forEach(x=>x.classList.remove("on"));
+}
+const DEFAULT_NOTE = "建议由属地指挥室主办，农业农村、应急、综合执法协同：现场踏勘、停止直排、评估损失并协商赔偿。";
+function openAssign(){
+  resetAssign();
+  $("assignNote").value = adopted.length ? adopted.map((t,i)=>(i+1)+"．"+t).join("\n") : DEFAULT_NOTE;
+  $("assignMask").classList.add("show");
+}
+$("btnAssign").onclick = openAssign;
+$("assignClose").onclick = () => $("assignMask").classList.remove("show");
+$("assignMask").onclick = e => { if(e.target.id==="assignMask") $("assignMask").classList.remove("show"); };
+$("assignSubmit").onclick = () => { $("assignMask").classList.remove("show"); toast("已发起协同指派"); };
+$("assignReset").onclick = resetAssign;
+function renderTune(q=""){
+  $("tuneList").innerHTML = TAX.filter(r => !q || r.join("").includes(q)).map(r =>
+    `<div class="g-item" data-code="${r[3]}"><span>${r[0]} · ${r[1]} · ${r[2]}</span><i>${r[3]}</i></div>`
+  ).join("");
+  $("tuneList").querySelectorAll(".g-item").forEach(el => el.onclick = () => {
+    state.type = TAX.find(x=>x[3]===el.dataset.code);
+    applyClass(); $("tuneModal").classList.remove("show"); toast("已改选分类");
+  });
+}
+$("btnTune").onclick = () => { renderTune(); $("tuneModal").classList.add("show"); $("tuneQ").value=""; };
+$("tuneClose").onclick = () => $("tuneModal").classList.remove("show");
+$("tuneQ").oninput = () => renderTune($("tuneQ").value);
+$("tuneModal").onclick = e => { if(e.target.id==="tuneModal") $("tuneModal").classList.remove("show"); };
+</script>
+</body>
+</html>
